@@ -2,9 +2,9 @@ mod config;
 mod models;
 mod routes;
 
-use actix_web::{App, HttpServer, web};
-use routes::authors_routes::*;
-use routes::books_routes::*;
+use actix_web::{web, App, HttpServer};
+use routes::authors_routes::AuthorDb;
+use routes::books_routes::BookDb;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
