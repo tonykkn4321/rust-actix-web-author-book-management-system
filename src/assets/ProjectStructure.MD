@@ -20,6 +20,6 @@ sea-orm: Async ORM with MySQL & PostgreSQL support
 dotenvy: Environment variable loader
 tokio: Async runtime
 
-# Use SeaORM CLI to generate models:
+# Use SeaORM CLI to generate models for local development:
 cargo install sea-orm-cli
 sea-orm-cli generate entity -u mysql://root:Aa161616@localhost/author_book_management_system -o src/entities
