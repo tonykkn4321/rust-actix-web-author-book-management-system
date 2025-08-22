@@ -1,3 +1,8 @@
+mod config;
+mod models;
+mod routes;
+
+use actix_web::{web, App, HttpServer};
 use crate::routes::authors_routes::{
     get_authors, create_author, update_author, patch_author, delete_author, AuthorDb,
 };
@@ -5,14 +10,6 @@ use crate::routes::authors_routes::{
 use crate::routes::books_routes::{
     get_books, create_book, update_book, patch_book, delete_book, BookDb,
 };
-
-mod config;
-mod models;
-mod routes;
-
-use actix_web::{web, App, HttpServer};
-use routes::authors_routes::AuthorDb;
-use routes::books_routes::BookDb;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
