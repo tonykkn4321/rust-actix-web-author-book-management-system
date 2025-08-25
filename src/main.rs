@@ -1,14 +1,14 @@
 use actix_web::{web, App, HttpServer, HttpResponse};
-use sqlx::{MySqlPool, PgPool};
+use sqlx::{MySqlPool, PgPool, Pool, Postgres};
 use std::env;
 
 mod config;
 mod models;
 use models::{authors::Author, books::Book};
 
-async fn get_authors(pool: web::Data<MySqlPool>) -> HttpResponse {
+async fn get_authors(pool: &Pool<Postgres>) -> HttpResponse {
     match sqlx::query_as::<_, Author>("SELECT * FROM authors")
-        .fetch_all(pool.get_ref())
+        .fetch_all(pool)
         .await
     {
         Ok(authors) => HttpResponse::Ok().json(authors),
@@ -19,11 +19,11 @@ async fn get_authors(pool: web::Data<MySqlPool>) -> HttpResponse {
     }
 }
 
-async fn create_author(pool: web::Data<MySqlPool>, new_author: web::Json<Author>) -> HttpResponse {
+async fn create_author(pool: &Pool<Postgres>, new_author: web::Json<Author>) -> HttpResponse {
     match sqlx::query("INSERT INTO authors (first_name, last_name) VALUES (?, ?)")
         .bind(&new_author.first_name)
         .bind(&new_author.last_name)
-        .execute(pool.get_ref())
+        .execute(pool)
         .await
     {
         Ok(_) => HttpResponse::Created().finish(),
@@ -40,10 +40,10 @@ async fn main() -> std::io::Result<()> {
     let database_url = config::get_database_url();
     let app_env = config::get_app_env();
 
-    let pool = if app_env == "production" {
-        PgPool::connect(&database_url).await.expect("Failed to create PostgreSQL pool")
+    let pool: Pool<Postgres> = if app_env == "production" {
+        PgPool::connect(&database_url).await.expect("Failed to create PostgreSQL pool").into()
     } else {
-        MySqlPool::connect(&database_url).await.expect("Failed to create MySQL pool")
+        MySqlPool::connect(&database_url).await.expect("Failed to create MySQL pool").into()
     };
 
     HttpServer::new(move || {
