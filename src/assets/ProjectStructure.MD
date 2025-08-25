@@ -4,9 +4,10 @@ author_book_management_system/
 ├── .env
 └── src/
     ├── main.rs
-    └── config.rs
+    ├── config.rs
     └── models/
-        └── authors.rss
+        ├── mod.rs       
+        └── authors.rs
         
 # Start a project in current folder
 cargo init

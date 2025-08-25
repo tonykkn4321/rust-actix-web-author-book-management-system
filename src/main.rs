@@ -1,8 +1,9 @@
 use actix_web::{web, App, HttpServer, HttpResponse};
-use sqlx::{MySqlPool};
+use sqlx::MySqlPool;
 
 mod config;
-mod models;
+mod models; // This should remain unchanged
+
 use models::authors::Author;
 
 async fn get_authors(pool: web::Data<MySqlPool>) -> HttpResponse {
