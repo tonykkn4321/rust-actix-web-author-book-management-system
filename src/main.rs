@@ -1,5 +1,5 @@
 use actix_web::{web, App, HttpServer, HttpResponse};
-use sqlx::{MySqlPool, PgPool};
+use sqlx::{MySqlPool, PgPool}; // Ensure PgPool is imported
 use std::env;
 
 mod config;
@@ -51,7 +51,6 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(pool.clone()))
             .route("/authors/", web::get().to(get_authors))
             .route("/authors/", web::post().to(create_author))
-            // Add routes for books...
     })
     .bind("0.0.0.0:8080")? // Binding to all interfaces
     .run()
