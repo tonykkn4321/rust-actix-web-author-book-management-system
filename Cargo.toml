@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 actix-web = "4.0"
-sqlx = { version = "0.6", features = ["mysql", "runtime-async-std"] } # Use "postgres" for production
+sqlx = { version = "0.6", features = ["mysql", "runtime-actix-native-tls"] }  # or use "runtime-actix-rustls" if preferred
 dotenv = "0.15"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
