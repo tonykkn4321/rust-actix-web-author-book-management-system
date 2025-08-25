@@ -7,30 +7,32 @@ mod models;
 use models::{authors::Author, books::Book};
 
 async fn get_authors(pool: web::Data<MySqlPool>) -> HttpResponse {
-    let authors = sqlx::query_as::<_, Author>("SELECT * FROM authors")
+    match sqlx::query_as::<_, Author>("SELECT * FROM authors")
         .fetch_all(pool.get_ref())
-        .await;
-
-    match authors {
+        .await
+    {
         Ok(authors) => HttpResponse::Ok().json(authors),
-        Err(_) => HttpResponse::InternalServerError().finish(),
+        Err(err) => {
+            eprintln!("Error fetching authors: {:?}", err);
+            HttpResponse::InternalServerError().finish()
+        }
     }
 }
 
 async fn create_author(pool: web::Data<MySqlPool>, new_author: web::Json<Author>) -> HttpResponse {
-    let result = sqlx::query("INSERT INTO authors (first_name, last_name) VALUES (?, ?)")
+    match sqlx::query("INSERT INTO authors (first_name, last_name) VALUES (?, ?)")
         .bind(&new_author.first_name)
         .bind(&new_author.last_name)
         .execute(pool.get_ref())
-        .await;
-
-    match result {
+        .await
+    {
         Ok(_) => HttpResponse::Created().finish(),
-        Err(_) => HttpResponse::InternalServerError().finish(),
+        Err(err) => {
+            eprintln!("Error creating author: {:?}", err);
+            HttpResponse::InternalServerError().finish()
+        }
     }
 }
-
-// Additional functions for handling books can be added here...
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -39,9 +41,9 @@ async fn main() -> std::io::Result<()> {
     let app_env = config::get_app_env();
 
     let pool = if app_env == "production" {
-        PgPool::connect(&database_url).await.expect("Failed to create pool")
+        PgPool::connect(&database_url).await.expect("Failed to create PostgreSQL pool")
     } else {
-        MySqlPool::connect(&database_url).await.expect("Failed to create pool")
+        MySqlPool::connect(&database_url).await.expect("Failed to create MySQL pool")
     };
 
     HttpServer::new(move || {

@@ -4,10 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-actix-web = "4.0"
-sqlx = { version = "0.6", features = ["mysql", "runtime-actix-native-tls"] }  # or use "runtime-actix-rustls" if preferred
+actix-web = "4.11.0"
+sqlx = { version = "0.6", features = ["mysql", "postgres", "serde"] }
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+dotenv = "0.15"
+uuid = { version = "1.0", features = ["serde"] }
 openssl = "0.10"
-dotenv = "0.15"  # or appropriate version
-uuid = { version = "1.0", features = ["v4"] }
