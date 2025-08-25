@@ -1,9 +1,8 @@
 use serde::{Serialize, Deserialize};
-use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Book {
-    pub id: Uuid,
+    pub id: i32, // Changed from Uuid to i32
     pub title: String,
-    pub author_id: Uuid,
+    pub author_id: i32, // Changed from Uuid to i32
 }
