@@ -1,40 +1,57 @@
+use actix_web::{web, App, HttpServer, HttpResponse};
+use sqlx::{MySqlPool, PgPool};
+use std::env;
+
 mod config;
 mod models;
-mod routes;
+use models::{authors::Author, books::Book};
 
-use actix_web::{web, App, HttpServer};
-use crate::routes::authors_routes::{
-    get_authors, create_author, update_author, patch_author, delete_author, AuthorDb,
-};
+async fn get_authors(pool: web::Data<MySqlPool>) -> HttpResponse {
+    let authors = sqlx::query_as::<_, Author>("SELECT * FROM authors")
+        .fetch_all(pool.get_ref())
+        .await;
 
-use crate::routes::books_routes::{
-    get_books, create_book, update_book, patch_book, delete_book, BookDb,
-};
+    match authors {
+        Ok(authors) => HttpResponse::Ok().json(authors),
+        Err(_) => HttpResponse::InternalServerError().finish(),
+    }
+}
+
+async fn create_author(pool: web::Data<MySqlPool>, new_author: web::Json<Author>) -> HttpResponse {
+    let result = sqlx::query("INSERT INTO authors (first_name, last_name) VALUES (?, ?)")
+        .bind(&new_author.first_name)
+        .bind(&new_author.last_name)
+        .execute(pool.get_ref())
+        .await;
+
+    match result {
+        Ok(_) => HttpResponse::Created().finish(),
+        Err(_) => HttpResponse::InternalServerError().finish(),
+    }
+}
+
+// Similar functions for books...
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let author_db = web::Data::new(AuthorDb::new(Vec::new()));
-    let book_db = web::Data::new(BookDb::new(Vec::new()));
+    config::init();
+    let database_url = config::get_database_url();
+    let app_env = config::get_app_env();
 
-    let db_url = config::get_database_url();
-    println!("🔗 Connecting to database at: {}", db_url);
+    let pool = if app_env == "production" {
+        PgPool::connect(&database_url).await.expect("Failed to create pool")
+    } else {
+        MySqlPool::connect(&database_url).await.expect("Failed to create pool")
+    };
 
     HttpServer::new(move || {
         App::new()
-            .app_data(author_db.clone())
-            .app_data(book_db.clone())
-            .service(get_authors)
-            .service(create_author)
-            .service(update_author)
-            .service(patch_author)
-            .service(delete_author)
-            .service(get_books)
-            .service(create_book)
-            .service(update_book)
-            .service(patch_book)
-            .service(delete_book)
+            .app_data(web::Data::new(pool.clone()))
+            .route("/authors/", web::get().to(get_authors))
+            .route("/authors/", web::post().to(create_author))
+            // Add routes for books...
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind("127.0.0.1:8080")?
     .run()
     .await
 }

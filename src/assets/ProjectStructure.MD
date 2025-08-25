@@ -1,25 +1,52 @@
 # Project structure:
-rust-actix-api/
+author_book_management_system/
 ├── Cargo.toml
+├── .env
 └── src/
     ├── main.rs
     ├── config.rs
-    ├── models/
-    │   ├── authors.rs
-    │   └── books.rs
-    └── routes/
-        ├── authors_routes.rs
-        └── books_routes.rs
-
+    └── models/
+        ├── authors.rs
+        ├── books.rs
+        └── mod.rs
+        
 # Start a project in current folder
 cargo init
 
 # Dependencies:
 actix-web: Fast web server
-sea-orm: Async ORM with MySQL & PostgreSQL support
 dotenvy: Environment variable loader
-tokio: Async runtime
 
-# Use SeaORM CLI to generate models for local development:
-cargo install sea-orm-cli
-sea-orm-cli generate entity -u mysql://root:Aa161616@localhost/author_book_management_system -o src/entities
+# Run the server:
+cargo run
+
+
+# For MySQL:
+CREATE TABLE authors (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE books (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    year INT NOT NULL CHECK (year > 0),
+    author_id INT,
+    FOREIGN KEY (author_id) REFERENCES authors(id) ON DELETE CASCADE
+);
+
+# For PostgreSQL:
+CREATE TABLE authors (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE books (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    year INT NOT NULL CHECK (year > 0),
+    author_id INT,
+    FOREIGN KEY (author_id) REFERENCES authors(id) ON DELETE CASCADE
+);
