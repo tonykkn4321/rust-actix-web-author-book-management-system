@@ -1,5 +1,5 @@
 use actix_web::{web, App, HttpServer, HttpResponse};
-use sqlx::{MySqlPool, PgPool}; // Ensure PgPool is imported
+use sqlx::{MySqlPool, PgPool};
 use std::env;
 
 mod config;

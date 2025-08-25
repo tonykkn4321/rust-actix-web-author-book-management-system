@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 actix-web = "4.11.0"
-sqlx = { version = "0.6", features = ["mysql", "postgres", "serde"] }
+sqlx = { version = "0.6", features = ["mysql", "postgres", "runtime-tokio-rustls"] } # Ensure you include the database features you need
 serde = { version = "1.0", features = ["derive"] }
 dotenv = "0.15"
 openssl = "0.10"
