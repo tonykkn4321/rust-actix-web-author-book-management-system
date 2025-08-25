@@ -9,6 +9,7 @@ author_book_management_system/
         ├── authors.rs
         ├── books.rs
         └── mod.rs
+        └── db.rs
         
 # Start a project in current folder
 cargo init
