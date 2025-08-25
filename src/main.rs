@@ -30,7 +30,7 @@ async fn create_author(pool: web::Data<MySqlPool>, new_author: web::Json<Author>
     }
 }
 
-// Similar functions for books...
+// Additional functions for handling books can be added here...
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -51,7 +51,7 @@ async fn main() -> std::io::Result<()> {
             .route("/authors/", web::post().to(create_author))
             // Add routes for books...
     })
-    .bind("127.0.0.1:8080")?
+    .bind("0.0.0.0:8080")? // Binding to all interfaces
     .run()
     .await
 }

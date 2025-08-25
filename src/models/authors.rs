@@ -1,9 +1,9 @@
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+use serde::{Serialize, Deserialize};
+use sqlx::FromRow;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, FromRow)]
 pub struct Author {
-    pub id: Uuid,
-    pub name: String,
-    pub bio: String,
+    pub id: i32,
+    pub first_name: String,
+    pub last_name: String,
 }
