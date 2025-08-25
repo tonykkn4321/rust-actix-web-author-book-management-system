@@ -1,10 +1,9 @@
 use actix_web::{web, App, HttpServer, HttpResponse};
 use sqlx::{PgPool, MySqlPool};
-use std::env;
 
 mod config;
 mod models;
-use models::{authors::Author, books::Book, db::DbPool};
+use models::{authors::Author, db::DbPool};
 
 async fn get_authors(pool: &DbPool) -> HttpResponse {
     match pool {
