@@ -1,12 +1,12 @@
 use actix_web::{web, App, HttpServer, HttpResponse};
-use sqlx::PgPool;
+use sqlx::MySqlPool;
 
 mod config;
-mod models;
+mod models; 
 
 use models::authors::Author;
 
-async fn get_authors(pool: web::Data<PgPool>) -> HttpResponse {
+async fn get_authors(pool: web::Data<MySqlPool>) -> HttpResponse {
     match sqlx::query_as::<_, Author>("SELECT * FROM authors")
         .fetch_all(pool.get_ref())
         .await
@@ -19,8 +19,8 @@ async fn get_authors(pool: web::Data<PgPool>) -> HttpResponse {
     }
 }
 
-async fn create_author(pool: web::Data<PgPool>, new_author: web::Json<Author>) -> HttpResponse {
-    match sqlx::query("INSERT INTO authors (first_name, last_name) VALUES ($1, $2)")
+async fn create_author(pool: web::Data<MySqlPool>, new_author: web::Json<Author>) -> HttpResponse {
+    match sqlx::query("INSERT INTO authors (first_name, last_name) VALUES (?, ?)")
         .bind(&new_author.first_name)
         .bind(&new_author.last_name)
         .execute(pool.get_ref())
@@ -38,7 +38,7 @@ async fn create_author(pool: web::Data<PgPool>, new_author: web::Json<Author>) -
 async fn main() -> std::io::Result<()> {
     config::init();
     let database_url = config::get_database_url();
-    let pool = PgPool::connect(&database_url).await.expect("Failed to create PostgreSQL pool");
+    let pool = MySqlPool::connect(&database_url).await.expect("Failed to create MySQL pool");
 
     HttpServer::new(move || {
         App::new()
