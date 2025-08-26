@@ -15,7 +15,8 @@ cargo init
 # Dependencies:
 actix-web: Fast web server
 dotenvy: Environment variable loader
-
+sqlx = { version = "0.6", features = ["mysql", "runtime-tokio-rustls"] } 
+sqlx = { version = "0.6", features = ["postgres", "runtime-tokio-rustls"] } 
 # Run the server:
 cargo run
 
@@ -49,3 +50,7 @@ CREATE TABLE books (
     author_id INT,
     FOREIGN KEY (author_id) REFERENCES authors(id) ON DELETE CASCADE
 );
+
+# Railways:
+cargo build --release
+cargo run --release
