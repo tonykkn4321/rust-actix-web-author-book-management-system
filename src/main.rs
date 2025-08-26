@@ -36,8 +36,9 @@ async fn create_author(pool: web::Data<PgPool>, new_author: web::Json<Author>) -
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    config::init();
-    let database_url = config::get_database_url();
+    // config::init();
+    // let database_url = config::get_database_url();
+    let database_url = "postgresql://postgres:bgZZNDTgjwQfqhOAcmpIsVHaPvenIWoB@postgres.railway.internal:5432/railway";
     let pool = PgPool::connect(&database_url).await.expect("Failed to create PostgreSQL pool");
 
     HttpServer::new(move || {
