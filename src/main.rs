@@ -1,53 +1,55 @@
-use actix_web::{web, App, HttpServer, HttpResponse};
-use sqlx::PgPool;
+use actix_web::{web, App, HttpServer, Responder, HttpResponse};
+use serde::{Deserialize, Serialize};
+use sqlx::{PgPool, FromRow};
+use dotenvy::dotenv;
+use std::env;
 
-mod config;
-mod models;
-
-use models::authors::Author;
-
-async fn get_authors(pool: web::Data<PgPool>) -> HttpResponse {
-    match sqlx::query_as::<_, Author>("SELECT * FROM authors")
-        .fetch_all(pool.get_ref())
-        .await
-    {
-        Ok(authors) => HttpResponse::Ok().json(authors),
-        Err(err) => {
-            eprintln!("Error fetching authors: {:?}", err);
-            HttpResponse::InternalServerError().finish()
-        }
-    }
+#[derive(Serialize, Deserialize, FromRow)]
+struct Author {
+    id: i32,
+    first_name: String,
+    last_name: String,
 }
 
-async fn create_author(pool: web::Data<PgPool>, new_author: web::Json<Author>) -> HttpResponse {
-    match sqlx::query("INSERT INTO authors (first_name, last_name) VALUES ($1, $2)")
+#[derive(Deserialize)]
+struct NewAuthor {
+    first_name: String,
+    last_name: String,
+}
+
+async fn get_authors(pool: web::Data<PgPool>) -> impl Responder {
+    let authors = sqlx::query_as::<_, Author>("SELECT * FROM authors")
+        .fetch_all(pool.get_ref())
+        .await
+        .unwrap_or_default();
+    HttpResponse::Ok().json(authors)
+}
+
+async fn create_author(
+    pool: web::Data<PgPool>,
+    new_author: web::Json<NewAuthor>,
+) -> impl Responder {
+    let _ = sqlx::query("INSERT INTO authors (first_name, last_name) VALUES ($1, $2)")
         .bind(&new_author.first_name)
         .bind(&new_author.last_name)
         .execute(pool.get_ref())
-        .await
-    {
-        Ok(_) => HttpResponse::Created().finish(),
-        Err(err) => {
-            eprintln!("Error creating author: {:?}", err);
-            HttpResponse::InternalServerError().finish()
-        }
-    }
+        .await;
+    HttpResponse::Created().finish()
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // config::init();
-    // let database_url = config::get_database_url();
-    let database_url = "postgresql://postgres:bgZZNDTgjwQfqhOAcmpIsVHaPvenIWoB@postgres.railway.internal:5432/railway";
-    let pool = PgPool::connect(&database_url).await.expect("Failed to create PostgreSQL pool");
+    dotenv().ok();
+    let db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let pool = PgPool::connect(&db_url).await.expect("Failed to connect to DB");
 
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(pool.clone()))
-            .route("/authors/", web::get().to(get_authors))
-            .route("/authors/", web::post().to(create_author))
+            .route("/authors", web::get().to(get_authors))
+            .route("/authors", web::post().to(create_author))
     })
-    .bind(("0.0.0.0", std::env::var("PORT").unwrap_or_else(|_| "8080".to_string()).parse().unwrap()))?
+    .bind(("0.0.0.0", 3000))?
     .run()
     .await
 }
