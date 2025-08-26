@@ -46,7 +46,7 @@ async fn main() -> std::io::Result<()> {
             .route("/authors/", web::get().to(get_authors))
             .route("/authors/", web::post().to(create_author))
     })
-    .bind("0.0.0.0:8080")?
+    .bind(("0.0.0.0", std::env::var("PORT").unwrap_or_else(|_| "8080".to_string()).parse().unwrap()))?
     .run()
     .await
 }
