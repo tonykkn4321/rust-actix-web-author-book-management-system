@@ -1,7 +1,7 @@
 # Project structure:
 rust-actix-author-book-management-system/
 ├── Cargo.toml
-├── .env
+├── .env (for localhost use)
 └── src/
     ├── main.rs
     ├── db.rs

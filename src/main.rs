@@ -7,7 +7,7 @@ mod models;
 mod routes;
 
 use db::connect_db;
-use routes::author::{
+use routes::authors::{
     list_authors, create_author, replace_author, patch_author, delete_author,
 };
 

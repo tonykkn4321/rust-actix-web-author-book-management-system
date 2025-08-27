@@ -1,6 +1,6 @@
 use actix_web::{web, HttpResponse};
 use sqlx::PgPool;
-use crate::models::author::Author;
+use crate::models::authors::Author;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
