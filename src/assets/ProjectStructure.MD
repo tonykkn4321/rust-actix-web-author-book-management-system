@@ -1,13 +1,17 @@
 # Project structure:
-author_book_management_system/
+rust-actix-author-book-management-system/
 ├── Cargo.toml
 ├── .env
 └── src/
     ├── main.rs
-    ├── config.rs
-    └── models/
-        ├── mod.rs       
-        └── authors.rs
+    ├── db.rs
+    ├── models/
+    │   ├── mod.rs
+    │   └── author.rs
+    └── routes/
+        ├── mod.rs
+        └── author.rs
+
         
 # Start a project in current folder
 cargo init
